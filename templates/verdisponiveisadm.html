@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ titulo if titulo else 'Inventário Geral' }} - Mizu</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #f4f4f4; }
+        .top-bar { height: 100px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 4px solid #ff6600; flex-shrink: 0; }
+        .top-bar img.logo-mizu { height: 60px; }
+        .top-bar img.logo-polimix { height: 40px; }
+        .search-form { display: flex; }
+        .search-form input { padding: 10px 16px; width: 340px; border: 1px solid #ccc; border-radius: 4px 0 0 4px; outline: none; font-size: 14px; }
+        .search-form button { background: #ff6600; color: white; border: none; padding: 10px 24px; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+        .sidebar { width: 280px; background: #2d2d2d; display: flex; flex-direction: column; flex-shrink: 0; }
+        .perfil-header { background: #ff6600; color: white; padding: 18px 20px; font-weight: 900; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; display: block; }
+        .nav-links a { display: block; color: #cccccc; text-decoration: none; padding: 15px 20px; border-bottom: 1px solid #3d3d3d; font-size: 13px; transition: 0.2s; }
+        .nav-links a:hover { background: #3d3d3d; color: #ff6600; padding-left: 28px; }
+        .nav-links a.sair { color: #ff4444; border-top: 2px solid #444; font-weight: bold; }
+        .content { flex: 1; padding: 30px; overflow-y: auto; }
+        .content h1 { font-size: 24px; color: #333; margin-bottom: 20px; font-weight: 700; }
+        .table-wrapper { background: white; border-radius: 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #333; color: white; padding: 14px 16px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        tbody td { padding: 13px 16px; border-bottom: 1px solid #f0f0f0; font-size: 13px; color: #444; }
+        .cod-orange { color: #ff6600; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        .status-disponivel { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .status-uso { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+    </style>
+</head>
+<body>
+
+<header class="top-bar">
+    <a href="{{ url_for('ver_ferramentas') }}">
+        <img src="{{ url_for('static', filename='img/mizu-1.png') }}" class="logo-mizu" alt="Mizu">
+    </a>
+    <form class="search-form" action="{{ url_for('ver_ferramentas') }}" method="GET">
+        <input type="text" name="busca" placeholder="Buscar ferramenta..." value="{{ request.args.get('busca', '') }}">
+        <button type="submit">Buscar</button>
+    </form>
+    <img src="{{ url_for('static', filename='img/polimix-1.png') }}" class="logo-polimix" alt="Polimix">
+</header>
+
+<div class="main-container">
+<aside class="sidebar">
+    <a href="{{ url_for('perfil_adm') }}" class="perfil-header">PERFIL: {{ session.get('perfil', '') }}</a>
+    <nav class="nav-links">
+        <a href="{{ url_for('ver_ferramentas') }}"><b>Inventário Geral (Início)</b></a>
+        <a href="{{ url_for('ferramentas_disponiveis') }}">Ver Ferramentas Disponíveis</a>
+        <a href="{{ url_for('manutencao') }}">Gestão de Manutenção</a>
+
+        {% if session.get('perfil') == 'ADMINISTRADOR' %}
+            <a href="{{ url_for('cadastrar') }}">Cadastrar Ferramentas</a>
+            <a href="{{ url_for('ferramentas_em_uso') }}">Ver Ferramentas em Uso</a>
+            <a href="{{ url_for('solicitar_acesso') }}">Solicitar Acesso (Novo Usuário)</a>
+            <a href="{{ url_for('enviar_formulario') }}">Enviar formulário</a>
+            <a href="{{ url_for('relatorio') }}">Relatório de Movimentações</a>
+            <a href="{{ url_for('usuarios') }}">Administrar Usuários</a>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}" class="sair">Sair</a>
+    </nav>
+</aside>
+
+<main class="content">
+    <h1>{{ titulo if titulo else 'Inventário Geral' }}</h1>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr><th>Cód</th><th>Ferramenta</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for item in ferramentas %}
+                <tr>
+                    <td class="cod-orange">#{{ item.codigo }}</td>
+                    <td>{{ item.nome }}</td>
+                    <td>
+                        {% if item.status == 'Disponível' %}
+                            <span class="status-badge status-disponivel">Disponível</span>
+                        {% elif item.status == 'Em Uso' %}
+                            <span class="status-badge status-uso">Em Uso</span>
+                        {% else %}
+                            <span class="status-badge">{{ item.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</main>
+</div>
+</body>
+</html>

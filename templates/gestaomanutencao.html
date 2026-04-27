@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mizu - Gestão de Manutenção</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f5f5f5; }
+        .header-logo { text-align: center; padding: 20px; background: white; }
+        .header-logo img { height: 80px; }
+        .header-title { text-align: center; font-size: 24px; font-weight: bold; color: #333; margin-bottom: 20px; }
+        .orange-line { height: 4px; background-color: #ff6600; width: 100%; margin-bottom: 20px; }
+        .container-fluid { padding: 0 20px; }
+        .actions-bar { margin-bottom: 20px; display: flex; gap: 10px; }
+        .btn-gray { background: #777; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 14px; display: inline-block; }
+        .btn-orange { background: #ff6600; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .table-responsive { background: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1500px; }
+        thead tr { background-color: #333; }
+        th { color: white; padding: 12px 8px; font-size: 11px; text-transform: uppercase; border: 1px solid #444; }
+        tbody td { padding: 10px 5px; border: 1px solid #eee; font-size: 12px; text-align: center; color: #444; }
+        .status-badge { font-weight: bold; padding: 4px 8px; border-radius: 4px; font-size: 10px; }
+        .status-concluido { color: #2e7d32; background: #e8f5e9; }
+        .status-pendente { color: #ef6c00; background: #fff3e0; }
+        .btn-editar-remessa { color: blue; border: none; background: none; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; }
+        .modal-content { background-color: white; margin: 2% auto; padding: 30px; border-radius: 12px; width: 60%; position: relative; margin-bottom: 50px; }
+        .close { position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer; color: #333; }
+        .modal-title { font-size: 22px; font-weight: bold; margin-bottom: 25px; color: #000; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 12px; font-weight: bold; color: #666; margin-bottom: 2px; text-align: left; }
+        .form-group.full { grid-column: span 2; }
+        input, select, textarea { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; width: 100%; }
+        textarea { height: 80px; resize: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header-logo">
+        <img src="{{ url_for('static', filename='img/mizu-1.png') }}" alt="Mizu Cimentos">
+        <div class="header-title">Gestão e Controle - Remessa para Manutenção</div>
+    </div>
+
+    <div class="orange-line"></div>
+
+    <div class="container-fluid">
+        <div class="actions-bar">
+            <a href="{{ url_for('ver_ferramentas') }}" class="btn-gray">Voltar ao Painel</a>
+            <button class="btn-orange" onclick="abrirModal('modalRemessa')">+ Nova Remessa</button>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>TAG</th><th>DESCRIÇÃO</th><th>QTD</th><th>MODELO</th><th>FABRICANTE</th>
+                        <th>DATA ENVIO</th><th>RESP. MANUTENÇÃO</th><th>NOTA ORIGEM</th><th>NOTA ENVIO</th>
+                        <th>NOTA RETORNO</th><th>DATA RETORNO</th><th>SC</th><th>OBSERVAÇÕES</th>
+                        <th>STATUS</th><th>RESPONSÁVEL</th><th>AÇÕES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in remessas %}
+                    <tr>
+                        <td>{{ r.tag }}</td>
+                        <td>{{ r.descricao }}</td>
+                        <td>{{ r.qtd }}</td>
+                        <td>{{ r.modelo or '' }}</td>
+                        <td>{{ r.fabricante or '' }}</td>
+                        <td>{{ r.data_envio or '' }}</td>
+                        <td>{{ r.resp_manutencao or '' }}</td>
+                        <td>{{ r.nota_origem or '' }}</td>
+                        <td>{{ r.nota_envio or '' }}</td>
+                        <td>{{ r.nota_retorno or '' }}</td>
+                        <td>{{ r.data_retorno or '' }}</td>
+                        <td>{{ r.sc or '' }}</td>
+                        <td>{{ r.observacoes or '' }}</td>
+                        <td>
+                            <span class="status-badge {% if r.status == 'Concluído' %}status-concluido{% else %}status-pendente{% endif %}">
+                                {{ r.status }}
+                            </span>
+                        </td>
+                        <td>{{ r.responsavel or '' }}</td>
+                        <td>
+                            <button class="btn-editar-remessa"
+                                data-id="{{ r.id }}"
+                                data-tag="{{ r.tag }}"
+                                data-descricao="{{ r.descricao or '' }}"
+                                data-qtd="{{ r.qtd or '' }}"
+                                data-modelo="{{ r.modelo or '' }}"
+                                data-fabricante="{{ r.fabricante or '' }}"
+                                data-data_envio="{{ r.data_envio or '' }}"
+                                data-resp_manutencao="{{ r.resp_manutencao or '' }}"
+                                data-nota_origem="{{ r.nota_origem or '' }}"
+                                data-nota_envio="{{ r.nota_envio or '' }}"
+                                data-nota_retorno="{{ r.nota_retorno or '' }}"
+                                data-data_retorno="{{ r.data_retorno or '' }}"
+                                data-sc="{{ r.sc or '' }}"
+                                data-responsavel="{{ r.responsavel or '' }}"
+                                data-status="{{ r.status }}"
+                                data-observacoes="{{ r.observacoes or '' }}">
+                                Editar
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="16" style="padding: 20px; color: #888;">Nenhuma remessa encontrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL NOVA REMESSA -->
+    <div id="modalRemessa" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalRemessa')">&times;</span>
+            <div class="modal-title">Cadastrar Nova Remessa</div>
+            <form action="{{ url_for('nova_remessa') }}" method="POST">
+                <div class="form-grid">
+                    <div class="form-group"><label>TAG</label><input type="text" name="tag" required></div>
+                    <div class="form-group"><label>Descrição</label><input type="text" name="descricao"></div>
+                    <div class="form-group"><label>Quantidade</label><input type="number" name="qtd"></div>
+                    <div class="form-group"><label>Modelo</label><input type="text" name="modelo"></div>
+                    <div class="form-group"><label>Fabricante</label><input type="text" name="fabricante"></div>
+                    <div class="form-group"><label>Data Envio</label><input type="date" name="data_envio"></div>
+                    <div class="form-group"><label>Responsável Manutenção</label><input type="text" name="resp_manutencao"></div>
+                    <div class="form-group"><label>Nota de Origem</label><input type="text" name="nota_origem"></div>
+                    <div class="form-group"><label>Nota de Envio</label><input type="text" name="nota_envio"></div>
+                    <div class="form-group"><label>SC</label><input type="text" name="sc"></div>
+                    <div class="form-group"><label>Responsável Interno</label><input type="text" name="responsavel"></div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="Em Manutenção">Em Manutenção</option>
+                            <option value="Aguardando Peça">Aguardando Peça</option>
+                        </select>
+                    </div>
+                    <div class="form-group full"><label>Observações</label><textarea name="observacoes"></textarea></div>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="submit" class="btn-orange">Salvar Remessa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR REMESSA -->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalEditar')">&times;</span>
+            <div class="modal-title">Editar Remessa / Retorno</div>
+            <form id="formEditar" method="POST">
+                <div class="form-grid">
+                    <div class="form-group"><label>TAG</label><input type="text" name="tag" id="edit_tag"></div>
+                    <div class="form-group"><label>Descrição</label><input type="text" name="descricao" id="edit_descricao"></div>
+                    <div class="form-group"><label>Quantidade</label><input type="number" name="qtd" id="edit_qtd"></div>
+                    <div class="form-group"><label>Modelo</label><input type="text" name="modelo" id="edit_modelo"></div>
+                    <div class="form-group"><label>Fabricante</label><input type="text" name="fabricante" id="edit_fabricante"></div>
+                    <div class="form-group"><label>Data Envio</label><input type="date" name="data_envio" id="edit_data_envio"></div>
+                    <div class="form-group"><label>Responsável Manutenção</label><input type="text" name="resp_manutencao" id="edit_resp_manutencao"></div>
+                    <div class="form-group"><label>Nota de Origem</label><input type="text" name="nota_origem" id="edit_nota_origem"></div>
+                    <div class="form-group"><label>Nota de Envio</label><input type="text" name="nota_envio" id="edit_nota_envio"></div>
+                    <div class="form-group"><label>Nota de Retorno</label><input type="text" name="nota_retorno" id="edit_nota_retorno"></div>
+                    <div class="form-group"><label>Data Retorno</label><input type="date" name="data_retorno" id="edit_data_retorno"></div>
+                    <div class="form-group"><label>SC</label><input type="text" name="sc" id="edit_sc"></div>
+                    <div class="form-group"><label>Responsável Interno</label><input type="text" name="responsavel" id="edit_responsavel"></div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" id="edit_status">
+                            <option value="Em Manutenção">Em Manutenção</option>
+                            <option value="Aguardando Peça">Aguardando Peça</option>
+                            <option value="Concluído">Concluído</option>
+                        </select>
+                    </div>
+                    <div class="form-group full"><label>Observações</label><textarea name="observacoes" id="edit_obs"></textarea></div>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="submit" class="btn-orange">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function abrirModal(id) { document.getElementById(id).style.display = 'block'; }
+        function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        document.querySelectorAll('.btn-editar-remessa').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var d = this.dataset;
+                document.getElementById('formEditar').action = "/editar_remessa/" + d.id;
+                document.getElementById('edit_tag').value = d.tag;
+                document.getElementById('edit_descricao').value = d.descricao;
+                document.getElementById('edit_qtd').value = d.qtd;
+                document.getElementById('edit_modelo').value = d.modelo;
+                document.getElementById('edit_fabricante').value = d.fabricante;
+                document.getElementById('edit_data_envio').value = d.data_envio;
+                document.getElementById('edit_resp_manutencao').value = d.resp_manutencao;
+                document.getElementById('edit_nota_origem').value = d.nota_origem;
+                document.getElementById('edit_nota_envio').value = d.nota_envio;
+                document.getElementById('edit_nota_retorno').value = d.nota_retorno;
+                document.getElementById('edit_data_retorno').value = d.data_retorno;
+                document.getElementById('edit_sc').value = d.sc;
+                document.getElementById('edit_responsavel').value = d.responsavel;
+                document.getElementById('edit_status').value = d.status;
+                document.getElementById('edit_obs').value = d.observacoes;
+                abrirModal('modalEditar');
+            });
+        });
+
+        window.onclick = function(event) {
+            if (event.target.className === 'modal') {
+                fecharModal('modalRemessa');
+                fecharModal('modalEditar');
+            }
+        }
+    </script>
+</body>
+</html>

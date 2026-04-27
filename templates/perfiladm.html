@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mizu | Meu Perfil</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfiladm.css') }}">
+    <style>
+        /* Estilos rápidos para bater com a foto */
+        body { background-color: #f4f4f4; font-family: sans-serif; }
+        .perfil-container { background: white; max-width: 500px; margin: 50px auto; border-radius: 10px; border-top: 8px solid #f37021; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 30px; }
+        .campo-grupo { margin-bottom: 20px; }
+        label { font-weight: bold; font-size: 12px; color: #666; text-transform: uppercase; }
+        .valor-atual { background: #f8f9fa; padding: 10px; border-left: 4px solid #f37021; color: #333; font-size: 14px; margin: 5px 0; border-radius: 4px; }
+        .valor-atual span { color: #999; font-size: 12px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; margin-top: 5px; }
+        .botoes { display: flex; gap: 10px; margin-top: 30px; }
+        .btn-salvar { background: #f37021; color: white; border: none; flex: 2; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-voltar { background: #666; color: white; border: none; flex: 1; padding: 12px; border-radius: 5px; cursor: pointer; text-decoration: none; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="perfil-container">
+    <h2>Meu Perfil (Administrador)</h2>
+
+    <form action="{{ url_for('editar_usuario') }}" method="POST">
+        <input type="hidden" name="id" value="{{ usuario.id }}">
+
+        <div class="campo-grupo">
+            <label>Nome Completo</label>
+            <div class="valor-atual"><span>Atual:</span> {{ usuario.nome }}</div>
+            <input type="text" name="nome" placeholder="Digite o novo nome">
+        </div>
+
+        <div class="campo-grupo">
+            <label>E-mail de Login</label>
+            <div class="valor-atual"><span>Atual:</span> {{ usuario.email }}</div>
+            <input type="email" name="email" placeholder="Digite o novo e-mail">
+        </div>
+
+        <div class="campo-grupo">
+            <label>Setor/Cargo</label>
+            <div class="valor-atual"><span>Atual:</span> {{ usuario.setor_cargo if usuario.setor_cargo else 'Não informado' }}</div>
+            <input type="text" name="setor" placeholder="Digite o novo setor">
+        </div>
+
+        <div class="campo-grupo">
+            <label>Nº Matrícula</label>
+            <div class="valor-atual"><span>Atual:</span> {{ usuario.matricula if usuario.matricula else 'Não informado' }}</div>
+            <input type="text" name="matricula" placeholder="Digite a nova matrícula">
+        </div>
+
+        <hr style="border: 0; border-top: 1px dashed #eee; margin: 30px 0;">
+
+        <div class="campo-grupo">
+            <label>Alterar Senha (opcional)</label>
+            <input type="password" name="nova_senha" placeholder="Nova Senha" style="margin-bottom: 10px;">
+            <input type="password" name="confirmar_senha" placeholder="Confirmar Nova Senha">
+        </div>
+
+        <div class="botoes">
+            <button type="submit" class="btn-salvar">Salvar Alterações</button>
+            <a href="{{ url_for('ver_ferramentas') }}" class="btn-voltar">Voltar</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

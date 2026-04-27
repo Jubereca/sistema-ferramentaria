@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulário - Mizu</title>
+    <style>
+        body { background-color: #e0e0e0; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; width: 100%; max-width: 550px; padding: 40px; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        h1 { font-size: 32px; margin: 0; color: #333; letter-spacing: 2px; }
+        h2 { color: #ff6600; text-transform: uppercase; font-size: 20px; margin: 5px 0 20px 0; font-weight: bold; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #444; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .row { display: flex; gap: 15px; }
+        .btn-submit { background: #1a1a1a; color: white; width: 100%; padding: 15px; border: none; font-weight: bold; cursor: pointer; margin-top: 25px; text-transform: uppercase; border-radius: 4px; font-size: 16px; }
+        .btn-submit:hover { background: #333; }
+        .btn-sair { background: #ff6600; color: white; padding: 10px 25px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 20px; font-weight: bold; font-size: 14px; }
+        .msg-sucesso { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; font-weight: bold; text-align: left; }
+        .msg-erro { background: #ffebee; color: #c62828; border-left: 4px solid #c62828; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; font-weight: bold; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="{{ url_for('static', filename='img/mizu-1.png') }}" height="70">
+        <h2>FORMULÁRIO</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                    <div class="{{ 'msg-sucesso' if category == 'success' else 'msg-erro' }}">
+                        {{ '✅' if category == 'success' else '⚠️' }} {{ msg }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('enviar_formulario') }}" method="POST">
+            <div class="form-group">
+                <label>Nome do Adm</label>
+                <input type="text" name="nome_adm" placeholder="Ex: Júlia Silva" required>
+            </div>
+
+            <div class="form-group">
+                <label>Motivo</label>
+                <input type="text" name="motivo" placeholder="Ex: Feedback de Produção / Manutenção" required>
+            </div>
+
+            <div class="row">
+                <div class="form-group" style="flex: 1;">
+                    <label>Data de Envio</label>
+                    <input type="date" name="data_envio" required>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>Enviar para (E-mail)</label>
+                    <input type="email" name="usuario_destino" placeholder="exemplo@mizu.com.br" list="emails_sugeridos" required>
+                    <datalist id="emails_sugeridos">
+                        <option value="supervisor@mizu.com.br">
+                        <option value="gerente@mizu.com.br">
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Observações Técnicas</label>
+                <textarea name="observacoes" rows="4" placeholder="Descreva os detalhes aqui..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">ENVIAR FORMULÁRIO</button>
+        </form>
+
+        <div style="text-align: left;">
+            <a href="{{ url_for('ver_ferramentas') }}" class="btn-sair">Sair</a>
+        </div>
+    </div>
+</body>
+</html>

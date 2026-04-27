@@ -1,0 +1,29 @@
+import sqlite3
+
+conn = sqlite3.connect("banco_mizu_final.db")
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS manutencao_remessas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tag TEXT,
+    descricao TEXT,
+    qtd INTEGER,
+    modelo TEXT,
+    fabricante TEXT,
+    data_envio TEXT,
+    resp_manutencao TEXT,
+    nota_origem TEXT,
+    nota_envio TEXT,
+    nota_retorno TEXT,
+    data_retorno TEXT,
+    sc TEXT,
+    observacoes TEXT,
+    status TEXT,
+    responsavel TEXT
+)
+""")
+
+conn.commit()
+conn.close()
+print("Tabela manutencao_remessas criada com sucesso!")

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mizu - Administrar Usuários</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/administrarusuario.css') }}">
+</head>
+<body>
+
+<header style="display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 2px solid #f37021; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <a href="{{ url_for('ver_ferramentas') }}" class="btn-back" style="text-decoration: none; color: #333; font-weight: bold;">⬅ Voltar</a>
+        <h2>Gestão de Usuários e Atos</h2>
+    </div>
+</header>
+
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}<p style="color: #f37021; text-align: center;">{{ message }}</p>{% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in usuarios %}
+            <tr>
+                <td>{{ user.nome }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.status }}</td>
+                <td>
+                    <button onclick="prepararModal('{{ user.id }}', '{{ user.email }}')">📋</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="modalServico" class="modal" style="display:none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background: white; margin: 10% auto; padding: 20px; width: 35%; border-radius: 8px;">
+        <h3>Nova Determinação de Serviço</h3>
+        <form action="{{ url_for('nova_determinacao') }}" method="POST">
+            <input type="hidden" name="usuario_id" id="modal_id">
+            <input type="hidden" name="email_destino" id="modal_email">
+            
+            <textarea name="descricao" style="width: 100%; height: 100px; margin-bottom: 10px;" placeholder="Descreva o serviço..." required></textarea>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="document.getElementById('modalServico').style.display='none'">Cancelar</button>
+                <button type="submit" style="background: #f37021; color: white; border: none; padding: 10px; cursor: pointer;">Enviar Ordem</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function prepararModal(id, email) {
+        document.getElementById('modal_id').value = id;
+        document.getElementById('modal_email').value = email;
+        document.getElementById('modalServico').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

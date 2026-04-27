@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mizu - Editar Ferramenta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/verdisponiveisadm.css') }}">
+</head>
+<body style="background-color: #f4f4f4; display: flex; flex-direction: column; align-items: center; padding-top: 50px;">
+
+    <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 450px; border-top: 8px solid #ff6600;">
+        <h2 style="color: #333; margin-bottom: 10px;">🔧 Editar Detalhes</h2>
+        <p style="color: #666;">Alterando informações do item: <strong>{{ item.nome }}</strong></p>
+        <hr style="margin-bottom: 20px; border: 0.5px solid #eee;">
+        
+        <form method="POST">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Marca:</label>
+                <input type="text" name="marca" value="{{ item.marca if item.marca else '' }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Status Atual:</label>
+                <select name="status" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    <option value="Disponível" {{ 'selected' if item.status == 'Disponível' }}>Disponível</option>
+                    <option value="Em Uso" {{ 'selected' if item.status == 'Em Uso' }}>Em Uso</option>
+                    <option value="Manutenção" {{ 'selected' if item.status == 'Manutenção' }}>Manutenção</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">Observações Técnicas:</label>
+                <textarea name="obs" style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: none;">{{ item.observacoes if item.observacoes else '' }}</textarea>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="{{ url_for('ver_ferramentas') }}" style="color: #666; text-decoration: none; font-size: 14px;">⬅ Voltar</a>
+                <button type="submit" style="background: #333; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold;">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

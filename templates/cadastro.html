@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mizu - Cadastro de Ferramentas</title>
+    <style>
+        /* Estilos para garantir o visual que você quer */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background-color: #f5f5f5; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* Estilo do cabeçalho das logos */
+        .header {
+            background-color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ff6600;
+            width: 100%;
+        }
+        .header img { height: 45px; width: auto; }
+
+        /* Estilo do formulário central */
+        .container {
+            background-color: white;
+            margin: 40px auto;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h2 { margin-bottom: 25px; font-size: 20px; text-transform: uppercase; }
+        h2 span { color: #ff6600; }
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background-color: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-submit:hover { background-color: #ff6600; }
+        .botao-sair { display: block; margin-top: 15px; color: #ff6600; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <img src="{{ url_for('static', filename='img/mizu-1.png') }}" alt="Mizu">
+        <img src="{{ url_for('static', filename='img/polimix-1.png') }}" alt="Polimix">
+    </header>
+
+<div class="container">
+    <div style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">MIZU</div>
+    <h2>SOLICITAR <span>NOVO USUÁRIO</span></h2>
+
+    <form action="{{ url_for('processar_solicitacao') }}" method="POST">
+        <div class="form-group">
+            <label>Número de Matrícula</label>
+            <input type="text" name="matricula" placeholder="Digite sua matrícula" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" name="nome" placeholder="Seu nome" required>
+        </div>
+
+        <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" name="email" placeholder="email@mizu.com.br" required>
+        </div>
+
+        <div class="form-group">
+            <label>Setor</label>
+            <input type="text" name="setor" placeholder="Ex: Produção" required>
+        </div>
+
+        <div class="form-group">
+            <label>Crie uma senha</label>
+            <input type="password" name="senha" required>
+        </div>
+
+        <div class="form-group">
+            <label>Confirme sua senha</label>
+            <input type="password" name="confirmar_senha" required>
+        </div>
+
+        <button type="submit" class="btn-submit">ENVIAR SOLICITAÇÃO</button>
+    </form>
+
+    <a href="{{ url_for('ver_ferramentas') }}" class="botao-sair">Voltar ao Painel</a>
+</div>
+</body>
+</html>

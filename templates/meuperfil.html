@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mizu | Meu Perfil</title>
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .wrapper {
+            display: flex;
+            gap: 25px;
+            width: 100%;
+            max-width: 950px;
+        }
+        .container-perfil {
+            background-color: white;
+            width: 450px;
+            min-width: 450px;
+            padding: 35px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+            border-top: 6px solid #ff6600;
+        }
+        .container-historico {
+            background-color: white;
+            flex: 1;
+            padding: 35px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+            border-top: 6px solid #333;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: sticky;
+            top: 40px;
+        }
+        h2 { text-align: center; color: #333; margin-bottom: 30px; font-size: 20px; }
+        h3 { color: #333; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #ff6600; padding-bottom: 10px; position: sticky; top: 0; background: white; z-index: 1; padding-top: 5px; }
+        .label-grupo { font-weight: bold; color: #333; font-size: 13px; margin-top: 18px; display: block; text-transform: uppercase; }
+        .info-atual {
+            background-color: #f5f5f5;
+            padding: 12px;
+            border-left: 4px solid #ff6600;
+            margin: 8px 0;
+            font-size: 14px;
+            color: #555;
+            border-radius: 2px;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            outline-color: #ff6600;
+        }
+        .divisor { border-top: 1px dashed #ccc; margin: 25px 0; }
+        .botoes { display: flex; gap: 12px; margin-top: 25px; }
+        .btn-salvar {
+            flex: 2; background-color: #ff6600; color: white;
+            border: none; padding: 12px; border-radius: 6px;
+            font-weight: bold; cursor: pointer; font-size: 15px;
+        }
+        .btn-voltar {
+            flex: 1; background-color: #666; color: white;
+            text-decoration: none; text-align: center; padding: 12px;
+            border-radius: 6px; font-weight: bold; font-size: 15px;
+        }
+        .timeline-item {
+            border-left: 3px solid #ff6600;
+            padding: 8px 14px;
+            margin-bottom: 12px;
+            background: #fafafa;
+            border-radius: 0 6px 6px 0;
+        }
+        .timeline-item .data { font-weight: bold; color: #ff6600; font-size: 12px; margin-bottom: 4px; }
+        .timeline-item .desc { color: #444; font-size: 13px; }
+        .timeline-item .desc.retirada { color: #c62828; }
+        .timeline-item .desc.devolucao { color: #2e7d32; }
+        .timeline-vazio { color: #999; text-align: center; font-size: 14px; padding: 20px 0; }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+
+    <!-- PERFIL -->
+    <div class="container-perfil">
+        <h2>Meu Perfil ({{ session['perfil'] | replace('FUNCIONARIO', 'FUNCIONÁRIO') }})</h2>
+
+        <form action="{{ url_for('salvar_perfil') }}" method="POST">
+            <span class="label-grupo">Número de Matrícula</span>
+            <div class="info-atual">Atual: {{ usuario.matricula if usuario and usuario.matricula else '---' }}</div>
+
+            <span class="label-grupo">Nome Completo</span>
+            <div class="info-atual">Atual: {{ usuario.nome if usuario else session['usuario_nome'] }}</div>
+            <input type="text" name="novo_nome" placeholder="Digite o novo nome">
+
+            <span class="label-grupo">E-mail de Login</span>
+            <div class="info-atual">Atual: {{ usuario.email if usuario else session['usuario_email'] }}</div>
+            <input type="email" name="novo_email" placeholder="Digite o novo e-mail">
+
+            <span class="label-grupo">Setor / Cargo</span>
+            <div class="info-atual">Vinculado a: <b>{{ usuario.setor_cargo if usuario and usuario.setor_cargo else (usuario.setor if usuario and usuario.setor else 'Não informado') }}</b></div>
+            <p style="font-size: 11px; color: #888; margin-top: 5px;">* Alterações de setor devem ser solicitadas ao Administrador.</p>
+
+            <div class="divisor"></div>
+
+            <span class="label-grupo">Alterar Senha (opcional)</span>
+            <input type="password" name="nova_senha" placeholder="Nova Senha" style="margin-bottom: 10px;">
+            <input type="password" name="confirmar_senha" placeholder="Confirmar Nova Senha">
+
+            <div class="botoes">
+                <button type="submit" class="btn-salvar">Salvar Alterações</button>
+                <a href="{{ url_for('dashboard_funcionario') }}" class="btn-voltar">Voltar</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="container-historico">
+        <h3>Meu Histórico de Ferramentas</h3>
+
+        {% if historico %}
+            {% for item in historico %}
+            <div class="timeline-item">
+                <div class="data">{{ item.data }}</div>
+                <div class="desc {{ 'devolucao' if 'Devolveu' in item.descricao else 'retirada' if 'Retirou' in item.descricao else '' }}">
+                    {{ item.descricao }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="timeline-vazio">Nenhuma atividade registrada ainda.</p>
+        {% endif %}
+    </div>
+
+</div>
+</body>
+</html>

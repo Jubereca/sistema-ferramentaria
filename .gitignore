@@ -1,0 +1,4 @@
+.env
+banco_mizu_final.db
+__pycache__/
+*.pyc

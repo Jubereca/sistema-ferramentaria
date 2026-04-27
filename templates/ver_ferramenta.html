@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ferramentas Disponíveis - Mizu</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f0f2f5; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* Header conforme a imagem enviada */
+        header { 
+            background: white; padding: 20px 50px; display: flex; 
+            align-items: center; justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .logo-mizu { height: 50px; }
+        .logo-polimix { height: 35px; }
+
+        /* Busca Centralizada */
+        .search-container { display: flex; align-items: center; gap: 10px; }
+        .search-container input {
+            width: 400px; padding: 12px 20px; border: 1px solid #ddd;
+            border-radius: 25px; outline: none; font-size: 14px;
+        }
+        .search-container button {
+            background: #ff6600; color: white; border: none;
+            padding: 12px 30px; border-radius: 25px; cursor: pointer;
+            font-weight: bold; transition: 0.3s;
+        }
+
+        /* Card Branco de Conteúdo */
+        .main-card {
+            background: white; margin: 50px auto; width: 90%;
+            max-width: 1000px; border-radius: 15px; padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .card-header h1 { color: #333; font-size: 24px; }
+        .btn-sair {
+            background: #ff6600; color: white; text-decoration: none;
+            padding: 10px 25px; border-radius: 8px; font-weight: bold;
+        }
+
+        /* Tabela Estilizada */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; color: #555; font-size: 14px; }
+        td { padding: 20px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+
+        /* Badges de Status conforme a nova tela */
+        .status-badge { padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+        .status-em-uso { background: #ffdada; color: #cc0000; }
+        .status-disponivel { background: #d4edda; color: #155724; }
+
+        /* Botões de Ação: Agendar (Preto) e Retirar (Laranja) */
+        .btn-acao { 
+            padding: 10px 20px; border-radius: 8px; text-decoration: none; 
+            font-weight: bold; font-size: 13px; display: inline-block; border: none;
+            cursor: pointer;
+        }
+        .btn-agendar { background: #222; color: white; }
+        .btn-retirar { background: #ff6600; color: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="{{ url_for('ver_ferramentas') }}">
+        <img src="{{ url_for('static', filename='img/mizu-1.png') }}" class="logo-mizu">
+    </a>
+
+    <form class="search-container" action="{{ url_for('ver_ferramentas') }}" method="GET">
+        <input type="text" name="busca" placeholder="Buscar ferramenta..." value="{{ request.args.get('busca', '') }}">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <img src="{{ url_for('static', filename='img/polimix-1.png') }}" class="logo-polimix">
+</header>
+
+<div class="main-card">
+    <div class="card-header">
+        <h1>Ferramentas Disponíveis</h1>
+        <a href="{{ url_for('ver_ferramentas') }}" class="btn-sair">Voltar ao Painel</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Cód</th>
+                <th>Ferramenta</th>
+                <th>Status</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in ferramentas %}
+            <tr>
+                <td style="color: #0056b3; font-weight: bold;">#{{ item.codigo }}</td>
+                <td>{{ item.nome }}</td>
+                <td>
+                    {% if item.status == 'Em Uso' %}
+                        <span class="status-badge status-em-uso">Em Uso</span>
+                    {% else %}
+                        <span class="status-badge status-disponivel">Disponível</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.status == 'Em Uso' %}
+                        <button class="btn-acao btn-agendar">Agendar</button>
+                    {% else %}
+                        <button class="btn-acao btn-retirar">Retirar Ferramenta</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

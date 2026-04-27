@@ -1,0 +1,81 @@
+/* Layout Base */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body { background-color: #f8f9fa; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+/* Topo Fixo */
+.top-bar { 
+    height: 80px; background: white; display: flex; justify-content: space-between; 
+    align-items: center; padding: 0 40px; border-bottom: 5px solid #ff6600; flex-shrink: 0;
+}
+.top-bar img { height: 45px; }
+
+/* Container Principal */
+.main-container { display: flex; flex: 1; overflow: hidden; }
+
+/* Sidebar Fixa */
+.sidebar { width: 280px; background-color: #2c2c2c; display: flex; flex-direction: column; flex-shrink: 0; }
+.perfil-header { background-color: #ff6600; padding: 20px; font-weight: bold; color: white; font-size: 14px; cursor: pointer; text-decoration: none; display: block; }
+
+.nav-links a { display: block; padding: 15px 20px; color: #ddd; text-decoration: none; border-bottom: 1px solid #3d3d3d; font-size: 13px; }
+.nav-links a:hover { background-color: #3d3d3d; color: white; }
+.nav-links a.sair { color: #ff4444; font-weight: bold; margin-top: auto; }
+
+/* Área de Conteúdo com Rolagem */
+.content { flex: 1; padding: 40px; overflow-y: auto; background: white; }
+
+/* Tabela Estilizada */
+.tool-table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #ddd; }
+.tool-table th { background-color: #333; color: white; padding: 12px; text-align: left; font-size: 12px; position: sticky; top: 0; }
+.tool-table td { padding: 15px; border-bottom: 1px solid #eee; font-size: 13px; }
+.cod-orange { color: #ff6600; font-weight: bold; }
+
+/* Badges */
+.badge { padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+.disp { background-color: #e2f3e5; color: #28a745; }
+.em-uso { background-color: #fceaea; color: #dc3545; }
+
+/* Reset básico para não espalhar nada */
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+body { display: flex; flex-direction: column; height: 100vh; background-color: white; }
+
+/* Topo fixo com as logos */
+.top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 40px; border-bottom: 4px solid #ff6600; background: white;
+}
+.top-bar img { height: 50px; }
+
+/* Divisão da tela: Menu na esquerda, Conteúdo na direita */
+.main-container { display: flex; flex: 1; overflow: hidden; }
+
+/* Menu Lateral */
+.sidebar {
+    width: 280px; background-color: #2c2c2c; color: white;
+    display: flex; flex-direction: column; flex-shrink: 0;
+}
+.perfil-header {
+    background-color: #ff6600; padding: 20px; font-weight: bold;
+    text-align: center; text-decoration: none; color: white;
+}
+
+.nav-links a {
+    padding: 15px 20px; color: #ddd; text-decoration: none;
+    border-bottom: 1px solid #444; display: block; font-size: 14px;
+}
+.nav-links a:hover { background-color: #444; }
+
+/* Área da Tabela com Rolagem */
+.content {
+    flex: 1; padding: 30px; overflow-y: auto; background-color: white;
+}
+
+/* Tabela igual ao seu print de sucesso */
+.tool-table { width: 100%; border-collapse: collapse; }
+.tool-table th { background: #333; color: white; padding: 12px; text-align: left; position: sticky; top: 0; }
+.tool-table td { padding: 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+
+.cod-orange { color: #ff6600; font-weight: bold; }
+.badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+.disp { background: #e8f5e9; color: #2e7d32; }
+.em-uso { background: #ffebee; color: #c62828; }

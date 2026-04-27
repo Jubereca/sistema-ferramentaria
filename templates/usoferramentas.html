@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ferramentas em Uso - Mizu</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 1200px; margin: auto; }
+        .header-tabela { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f37021; margin-bottom: 20px; padding-bottom: 10px; }
+        h2 { margin: 0; color: #333; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background-color: #333; color: white; padding: 12px; text-align: center; font-size: 13px; text-transform: uppercase; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; font-size: 14px; }
+        .status-uso { color: #f37021; font-weight: bold; }
+        .voltar { text-decoration: none; color: #666; font-size: 14px; }
+        .prazo-vencido { background-color: #ffe5e5; }
+        .prazo-vencido td { color: #cc0000; }
+        .badge-vencido {
+            background: #cc0000; color: white; font-size: 11px;
+            padding: 2px 7px; border-radius: 10px; margin-left: 6px;
+            font-weight: bold; vertical-align: middle;
+        }
+        .btn-devolver {
+            background: #f37021; color: white; border: none;
+            padding: 6px 12px; border-radius: 5px; cursor: pointer;
+            font-size: 13px; text-decoration: none;
+        }
+        .btn-devolver:hover { background: #e65c00; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header-tabela">
+        <h2>Controle de Movimentação (Em Uso/Reserva)</h2>
+        <a href="{{ url_for('ver_ferramentas') }}" class="voltar">← Voltar ao Painel</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>CÓD</th>
+                <th>FERRAMENTA</th>
+                <th>QUANTIDADE</th>
+                <th>FUNCIONÁRIO</th>
+                <th>MATRÍCULA</th>
+                <th>DATA/HORA</th>
+                <th>PRAZO DEVOLUÇÃO</th>
+                <th>STATUS</th>
+                <th>AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in ferramentas %}
+            {% set prazo_formatado = item.prazo_devolucao | replace('T', ' ') if item.prazo_devolucao else '' %}
+            {% set vencido = prazo_formatado and prazo_formatado < agora %}
+            <tr class="{{ 'prazo-vencido' if vencido else '' }}">
+                <td>{{ item.codigo }}</td>
+                <td>{{ item.nome }}</td>
+                <td>{{ item.quantidade or 1 }}</td>
+                <td>{{ item.funcionario or '---' }}</td>
+                <td>{{ item.matricula if item.matricula else '---' }}</td>
+                <td>{{ item.data_saida or '---' }}</td>
+                <td>
+                    {{ item.prazo_devolucao or '---' }}
+                    {% if vencido %}
+                        <span class="badge-vencido">VENCIDO</span>
+                    {% endif %}
+                </td>
+                <td class="status-uso">{{ item.status }}</td>
+                <td>
+                    <a href="{{ url_for('devolver', id=item.id) }}" class="btn-devolver">Devolver</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mizu - Devolução de Ferramenta</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: white; padding: 40px; border-radius: 12px; width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-top: 5px solid #ff6600; }
+        .logo { text-align: center; margin-bottom: 20px; }
+        .logo p { font-size: 13px; color: #888; margin-top: 5px; }
+        h2 { text-align: center; font-size: 20px; color: #333; margin-bottom: 25px; }
+        h2 span { color: #ff6600; }
+        label { display: block; font-size: 12px; font-weight: 800; color: #333; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-bottom: 18px; outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: #ff6600; }
+        input[readonly] { background: #f5f5f5; color: #666; }
+        textarea { resize: vertical; height: 90px; }
+        .botoes { display: flex; gap: 15px; margin-top: 5px; }
+        .btn-sair { flex: 1; padding: 14px; background: #555; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none; text-align: center; }
+        .btn-registrar { flex: 2; padding: 14px; background: #ff6600; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 800; cursor: pointer; }
+        .btn-registrar:hover { background: #e55a00; }
+        .aviso { background: #fff3e0; border-left: 4px solid #ff6600; padding: 10px 14px; border-radius: 4px; font-size: 13px; color: #555; margin-bottom: 18px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/mizu-1.png') }}" height="60">
+            <p>Controle de Inventário e Devoluções</p>
+        </div>
+
+        <h2>DEVOLVER <span>FERRAMENTA</span></h2>
+
+        <form action="{{ url_for('registrar_devolucao') }}" method="POST">
+            <input type="hidden" name="item_id" value="{{ item.id }}">
+            <input type="hidden" name="codigo" value="{{ item.codigo }}">
+
+            <label>Ferramenta</label>
+            <input type="text" value="{{ item.nome }}" readonly>
+
+            <label>Código</label>
+            <input type="text" value="{{ item.codigo }}" readonly>
+
+            <label>Funcionário</label>
+            <input type="text" value="{{ session.get('usuario_nome') }}" readonly>
+
+            <label>Estado de Conservação</label>
+            <select name="estado_conservacao" id="estado" onchange="verificarEstado()">
+                <option value="Em bom estado">Em bom estado</option>
+                <option value="Com avarias leves">Com avarias leves</option>
+                <option value="Com avarias graves">Com avarias graves</option>
+                <option value="Inutilizável">Inutilizável</option>
+            </select>
+
+            <div id="aviso-manutencao" class="aviso" style="display:none;">
+                ⚠️ Esta ferramenta será marcada como <b>Em Manutenção</b> e ficará indisponível até ser revisada pelo administrador.
+            </div>
+
+            <label>Observações</label>
+            <textarea name="observacoes" placeholder="Relate avarias ou detalhes se necessário..."></textarea>
+
+            <div class="botoes">
+                <a href="{{ url_for('ferramentas_disponiveis') }}" class="btn-sair">Cancelar</a>
+                <button type="submit" class="btn-registrar">Registrar Devolução</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function verificarEstado() {
+            const estado = document.getElementById('estado').value;
+            const aviso = document.getElementById('aviso-manutencao');
+            if (estado === 'Com avarias graves' || estado === 'Inutilizável') {
+                aviso.style.display = 'block';
+            } else {
+                aviso.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

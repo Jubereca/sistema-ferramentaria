@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Minhas Ferramentas - Mizu</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #fcfcfc; }
+        .header-top {
+            background: white; padding: 0 40px; display: flex;
+            align-items: center; justify-content: space-between;
+            height: 80px; border-bottom: 2px solid #eee;
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+        }
+        .mizu-logo img { height: 55px; }
+        .polimix-logo img { height: 28px; }
+        .sidebar {
+            width: 250px; background-color: #333; color: white;
+            position: fixed; top: 80px; bottom: 0; left: 0;
+        }
+        .perfil-banner {
+            background: #ff6600; color: white; padding: 18px 20px;
+            font-weight: bold; font-size: 13px; text-transform: uppercase;
+            display: block; text-decoration: none;
+        }
+        .nav-links a {
+            display: block; color: white; text-decoration: none;
+            padding: 13px 20px; font-size: 14px; transition: 0.2s;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        .nav-links a:hover { background-color: #444; color: #ff6600; padding-left: 26px; }
+        .nav-links a.sair { color: #ff4444; font-weight: bold; }
+        .main { margin-top: 80px; margin-left: 250px; padding: 35px; }
+        h1 { font-size: 22px; margin-bottom: 25px; color: #222; font-weight: 700; }
+        .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #333; color: white; padding: 14px 18px; text-align: left; font-size: 13px; font-weight: 600; }
+        td { padding: 16px 18px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #444; vertical-align: middle; }
+        .status-uso { color: #ff6600; font-weight: bold; }
+        .status-reservado { color: #1565c0; font-weight: bold; }
+        .btn-devolver {
+            background: #28a745; color: white; border: none;
+            padding: 9px 16px; border-radius: 6px; cursor: pointer;
+            font-weight: bold; font-size: 13px; text-decoration: none; display: inline-block;
+        }
+        .btn-devolver:hover { background: #218838; }
+        .vazio { text-align: center; padding: 40px; color: #999; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+<header class="header-top">
+    <div class="mizu-logo"><img src="{{ url_for('static', filename='img/mizu-1.png') }}" alt="Mizu"></div>
+    <div class="polimix-logo"><img src="{{ url_for('static', filename='img/polimix-1.png') }}" alt="Polimix"></div>
+</header>
+
+<div class="sidebar">
+    <a href="{{ url_for('meu_perfil') }}" class="perfil-banner">PERFIL: FUNCIONÁRIO</a>
+    <nav class="nav-links">
+        <a href="{{ url_for('ferramentas_disponiveis') }}">Ver Ferramentas Disponíveis</a>
+        <a href="{{ url_for('cadastrar_uso') }}">Cadastrar Uso</a>
+        <a href="{{ url_for('cadastrar_devolucao') }}">Cadastrar Devolução</a>
+        <a href="{{ url_for('logout') }}" class="sair">Sair</a>
+    </nav>
+</div>
+
+<div class="main">
+    <h1>Minhas Ferramentas</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:15%">Cód</th>
+                    <th style="width:55%">Ferramenta</th>
+                    <th style="width:15%">Status</th>
+                    <th style="width:15%">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if itens %}
+                    {% for item in itens %}
+                    <tr>
+                        <td>#{{ item.codigo }}</td>
+                        <td>{{ item.nome }}</td>
+                        <td>
+                            {% if item.status == 'Em Uso' %}
+                                <span class="status-uso">Em Uso</span>
+                            {% else %}
+                                <span class="status-reservado">Reservado</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('cadastrar_devolucao') }}?id={{ item.id }}" class="btn-devolver">Devolver</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="4" class="vazio">Você não tem nenhuma ferramenta em uso ou reservada.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

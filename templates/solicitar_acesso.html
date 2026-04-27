@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Acessos - Mizu</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 8px; max-width: 1000px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-box { border-bottom: 2px solid #f37021; padding-bottom: 15px; margin-bottom: 20px; }
+        .voltar { text-decoration: none; color: #333; font-size: 13px; }
+        .topo-flex { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        h2 { margin: 0; color: #333; }
+        .btn-novo { background: #f37021; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #333; color: white; padding: 12px; text-align: left; font-size: 14px; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 14px; color: #555; }
+        .status-ativo { color: #28a745; font-weight: bold; }
+        .status-aprovado { color: #17a2b8; font-weight: bold; }
+        .status-pendente { color: #ffc107; font-weight: bold; }
+        .btn-excluir { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; }
+        .btn-aprovar { background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-right: 5px; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-caixa {
+            background: white; padding: 25px; border-radius: 8px;
+            width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .modal-caixa h3 { margin-top: 0; color: #333; }
+        .modal-caixa input {
+            width: 100%; padding: 10px; margin: 8px 0;
+            border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
+        .modal-botoes { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-salvar { background: #f37021; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; flex: 1; font-weight: bold; }
+        .btn-cancelar { background: #666; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; flex: 1; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header-box">
+        <a href="{{ url_for('ver_ferramentas') }}" class="voltar">← Voltar ao Painel</a>
+        <div class="topo-flex">
+            <h2>Gerenciar Acessos</h2>
+            <button class="btn-novo" onclick="abrirModal()">+ CRIAR NOVO USUÁRIO</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>MATRÍCULA</th>
+                <th>NOME</th>
+                <th>E-MAIL</th>
+                <th>SETOR/CARGO</th>
+                <th>STATUS</th>
+                <th>AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in usuarios %}
+            <tr>
+                <td>{{ user.matricula if user.matricula else '-' }}</td>
+                <td>{{ user.nome }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.setor if user.setor else '-' }}</td>
+                <td>
+                    {% if user.status == 'Ativo' %}
+                        <span class="status-ativo">Ativo</span>
+                    {% elif user.status == 'Aprovado' %}
+                        <span class="status-aprovado">Aprovado</span>
+                    {% elif user.status == 'Pendente' %}
+                        <span class="status-pendente">Pendente</span>
+                    {% else %}
+                        <span>{{ user.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.status == 'Pendente' %}
+                    <form action="{{ url_for('aprovar_usuario', id=user.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-aprovar">Aprovar</button>
+                    </form>
+                    {% endif %}
+                    <form action="{{ url_for('excluir_usuario', id=user.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-excluir">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="modalCadastro" class="modal-overlay">
+    <div class="modal-caixa">
+        <h3>Cadastrar Novo Usuário</h3>
+        <form action="{{ url_for('cadastrar_usuario') }}" method="POST">
+            <input type="text" name="matricula" placeholder="Número de Matrícula" required>
+            <input type="text" name="nome" placeholder="Nome Completo" required>
+            <input type="email" name="email" placeholder="E-mail" required>
+            <input type="text" name="setor" placeholder="Setor/Cargo" required>
+            <input type="password" name="senha" placeholder="Senha" required>
+            <input type="password" name="confirmar_senha" placeholder="Confirmar Senha" required>
+            <div class="modal-botoes">
+                <button type="submit" class="btn-salvar">Salvar Usuário</button>
+                <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModal() {
+        document.getElementById('modalCadastro').style.display = 'flex';
+    }
+    function fecharModal() {
+        document.getElementById('modalCadastro').style.display = 'none';
+    }
+    window.onclick = function(event) {
+        var modal = document.getElementById('modalCadastro');
+        if (event.target == modal) fecharModal();
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Controle de Ferramental</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #fcfcfc; min-height: 100vh; }
+        .header-top { background: white; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #ff6600; height: 100px; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .mizu-top-img img { height: 70px; display: block; }
+        .search-center { flex: 1; display: flex; justify-content: center; padding: 0 40px; }
+        .search-box { display: flex; width: 100%; max-width: 500px; }
+        .search-box input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 4px 0 0 4px; outline: none; }
+        .search-box button { background: #ff6600; color: white; border: none; padding: 0 25px; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; }
+        .polimix-top-img img { height: 35px; }
+        
+        .sidebar { width: 280px; background-color: #2d2d2d; color: white; position: fixed; top: 104px; bottom: 0; border-right: 4px solid #ff6600; z-index: 900; }
+        
+        .perfil-banner { 
+            display: block;
+            background-color: #ff6600; 
+            color: white; 
+            padding: 18px; 
+            text-align: center; 
+            font-weight: 900; 
+            font-size: 15px; 
+            letter-spacing: 1px; 
+            text-transform: uppercase; 
+            text-decoration: none;
+            transition: 0.3s;
+        }
+        .perfil-banner:hover { background-color: #e65c00; cursor: pointer; }
+
+        .nav-links a { display: block; color: white; text-decoration: none; padding: 15px 25px; border-bottom: 1px solid #3d3d3d; font-size: 14px; transition: 0.3s; }
+        .nav-links a:hover { background-color: #3d3d3d; color: #ff6600; padding-left: 35px; }
+        
+        .main { margin-top: 125px; margin-left: 280px; padding: 40px; }
+        .table-card { background: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #333; color: white; padding: 15px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; vertical-align: middle; }
+        .status-ok { background: #d4edda; color: #155724; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .status-uso { background: #f8d7da; color: #721c24; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <header class="header-top">
+        <div class="mizu-top-img"><img src="{{ url_for('static', filename='img/mizu-1.png') }}" alt="Mizu"></div>
+        <div class="search-center">
+            <form class="search-box" action="{{ url_for('ver_ferramentas') }}" method="GET">
+                <input type="text" name="busca" placeholder="Buscar ferramenta..." value="{{ request.args.get('busca', '') }}">
+                <button type="submit">Buscar</button>
+            </form>
+        </div>
+        <div class="polimix-top-img"><img src="{{ url_for('static', filename='img/polimix-1.png') }}" alt="Polimix"></div>
+    </header>
+
+    <div class="sidebar">
+        <a href="{{ url_for('perfil_adm') }}" class="perfil-banner">
+            PERFIL: {{ session.get('perfil') }}
+        </a>
+        
+        <nav class="nav-links">
+            <a href="{{ url_for('ver_ferramentas') }}">Ver Ferramentas Disponíveis</a>
+            <a href="{{ url_for('manutencao') }}">Gestão de Manutenção</a>
+            
+            {% if session.get('perfil') == 'ADMINISTRADOR' %}
+                <a href="{{ url_for('cadastrar') }}">Cadastrar Ferramentas</a>
+                <a href="{{ url_for('ferramentas_em_uso') }}">Ver Ferramentas em Uso</a>
+                <a href="{{ url_for('administrar_usuarios') }}">Administrar Usuários</a>
+                <a href="{{ url_for('solicitar_acesso') }}">Solicitar Acesso (Novo Usuário)</a>
+                <a href="{{ url_for('enviar_formulario') }}">Enviar formulário</a>
+            {% endif %}
+            <a href="{{ url_for('relatorio') }}">Relatório de Movimentações</a>
+            
+            <a href="{{ url_for('logout') }}" style="color: #ff4444; border-top: 2px solid #444; margin-top: 10px; font-weight: bold;">Sair</a>
+        </nav>
+    </div>
+
+    <div class="main">
+        <h1 style="margin-bottom: 25px; font-size: 24px; color: #333;">Inventário Geral</h1>
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cód</th>
+                        <th>Ferramenta</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in ferramentas %}
+                    <tr>
+                        <td style="color: #ff6600; font-weight: bold;">#{{ item.codigo }}</td>
+                        <td>{{ item.nome }}</td>
+                        <td>
+                            <span class="{{ 'status-ok' if item.status == 'Disponível' else 'status-uso' }}">
+                                {{ item.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventário Geral - Mizu</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #fcfcfc; }
+
+        .header-top {
+            background: white; padding: 0 40px; display: flex;
+            align-items: center; justify-content: space-between;
+            height: 80px; border-bottom: 2px solid #eee;
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+        }
+        .mizu-logo img { height: 55px; }
+        .polimix-logo img { height: 28px; }
+        .search-container { flex-grow: 1; display: flex; justify-content: center; }
+        .search-box { display: flex; width: 450px; }
+        .search-box input {
+            flex: 1; padding: 10px 16px; border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px; outline: none; font-size: 14px;
+        }
+        .search-box button {
+            background: #ff6600; color: white; border: none;
+            padding: 10px 22px; border-radius: 0 4px 4px 0;
+            cursor: pointer; font-weight: bold; font-size: 14px;
+        }
+
+        .sidebar {
+            width: 250px; background-color: #333; color: white;
+            position: fixed; top: 80px; bottom: 0; left: 0;
+        }
+        .perfil-banner {
+            background: #ff6600; color: white; padding: 18px 20px;
+            font-weight: bold; font-size: 13px; text-transform: uppercase;
+            display: block; text-decoration: none;
+        }
+        .nav-links a {
+            display: block; color: white; text-decoration: none;
+            padding: 13px 20px; font-size: 14px; transition: 0.2s;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        .nav-links a:hover { background-color: #444; color: #ff6600; padding-left: 26px; }
+        .nav-links a.sair { color: #ff4444; font-weight: bold; }
+
+        .main { margin-top: 80px; margin-left: 250px; padding: 35px; }
+        h1 { font-size: 22px; margin-bottom: 25px; color: #222; font-weight: 700; }
+
+        .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #333; color: white; padding: 14px 18px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 16px 18px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #444; }
+
+        .cod-orange { color: #ff6600; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        .status-disponivel { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .status-uso { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .status-reservado { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+    </style>
+</head>
+<body>
+
+<header class="header-top">
+    <div class="mizu-logo"><img src="{{ url_for('static', filename='img/mizu-1.png') }}" alt="Mizu"></div>
+    <form action="{{ url_for('ver_ferramentas') }}" method="GET" class="search-container">
+        <div class="search-box">
+            <input type="text" name="busca" placeholder="Buscar ferramenta..." value="{{ request.args.get('busca', '') }}">
+            <button type="submit">Buscar</button>
+        </div>
+    </form>
+    <div class="polimix-logo"><img src="{{ url_for('static', filename='img/polimix-1.png') }}" alt="Polimix"></div>
+</header>
+
+<div class="sidebar">
+    <a href="{{ url_for('perfil_adm') }}" class="perfil-banner">PERFIL: ADMINISTRADOR</a>
+    <nav class="nav-links">
+        <a href="{{ url_for('ver_ferramentas') }}"><b>Inventário Geral (Início)</b></a>
+        <a href="{{ url_for('ferramentas_disponiveis') }}">Ver Ferramentas Disponíveis</a>
+        <a href="{{ url_for('manutencao') }}">Gestão de Manutenção</a>
+        <a href="{{ url_for('cadastrar_ferramenta') }}">Cadastrar Ferramentas</a>
+        <a href="{{ url_for('ferramentas_em_uso') }}">Ver Ferramentas em Uso</a>
+        <a href="{{ url_for('solicitar_acesso') }}">Solicitar Acesso (Novo Usuário)</a>
+        <a href="{{ url_for('enviar_formulario') }}">Enviar formulário</a>
+        <a href="{{ url_for('usuarios') }}">Administrar Usuários</a>
+        <a href="{{ url_for('relatorio') }}">Relatório de Movimentações</a>
+        <a href="{{ url_for('logout') }}" class="sair">Sair</a>
+    </nav>
+</div>
+
+<div class="main">
+    <h1>Inventário Geral</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:15%">Cód</th>
+                    <th style="width:60%">Ferramenta</th>
+                    <th style="width:25%">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in ferramentas %}
+                <tr>
+                    <td class="cod-orange">#{{ item.codigo }}</td>
+                    <td>{{ item.nome }}</td>
+                    <td>
+                        {% if item.status == 'Disponível' %}
+                            <span class="status-badge status-disponivel">Disponível</span>
+                        {% elif item.status == 'Em Uso' %}
+                            <span class="status-badge status-uso">Em Uso</span>
+                        {% elif item.status == 'Reservado' %}
+                            <span class="status-badge status-reservado">Reservado</span>
+                        {% else %}
+                            <span class="status-badge">{{ item.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Mizu - Registrar Uso ou Reserva</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        .card { background: white; padding: 40px; border-radius: 12px; width: 480px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .logo { text-align: center; margin-bottom: 15px; }
+        h2 { text-align: center; font-size: 20px; margin-bottom: 25px; color: #333; }
+        h2 span { color: #ff6600; }
+        .toggle { display: flex; margin-bottom: 20px; border-radius: 6px; overflow: hidden; border: 1px solid #ccc; }
+        .toggle button { flex: 1; padding: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: bold; background: #f0f0f0; color: #666; transition: 0.2s; }
+        .toggle button.ativo { background: #ff6600; color: white; }
+        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #333; }
+        .pergunta { font-size: 13px; color: #555; margin-bottom: 8px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; margin-bottom: 15px; outline: none; }
+        input:focus { border-color: #ff6600; }
+        input[readonly] { background: #f0f0f0; color: #555; }
+        .linha { display: flex; gap: 15px; }
+        .linha > div { flex: 1; }
+        .btn-confirmar { width: 100%; padding: 14px; background: #ff6600; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn-confirmar:hover { background: #e55a00; }
+        .voltar { text-align: center; margin-top: 12px; font-size: 13px; color: #888; }
+        .voltar a { color: #888; text-decoration: none; }
+        .voltar a:hover { color: #ff6600; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='img/mizu-1.png') }}" height="70">
+        </div>
+        <h2>REGISTRAR <span>USO</span></h2>
+
+        <p class="pergunta">O que deseja fazer?</p>
+        <div class="toggle">
+            <button type="button" id="btn-retirar" class="ativo" onclick="mostrar('retirar')">Retirar Agora</button>
+            <button type="button" id="btn-reservar" onclick="mostrar('reservar')">Reservar</button>
+        </div>
+
+        <form action="{{ url_for('salvar_uso') }}" method="POST">
+            <input type="hidden" name="tipo" id="tipo" value="retirar">
+
+            <label>Nome da Ferramenta</label>
+            <input type="text" name="nome_ferramenta" placeholder="Ex. Furadeira de Impacto" value="{{ request.args.get('nome', '') }}" required>
+
+            <div class="linha">
+                <div>
+                    <label>Código da Ferramenta</label>
+                    <input type="text" name="codigo_ferramenta" placeholder="Ex. MIZ-001" value="{{ request.args.get('codigo', '') }}" required>
+                </div>
+                <div>
+                    <label>Quantidade</label>
+                    <input type="number" name="quantidade" value="1" min="1" max="{{ qtd_max }}" required>
+                    <small style="color:#888; font-size:11px;">Disponível: {{ qtd_max }}</small>
+                </div>
+            </div>
+
+            <div id="campo-retirar">
+                <label>Horário de Retirada</label>
+                <input type="text" id="horario-retirada" name="horario_retirada" readonly>
+            </div>
+
+            <div id="campo-reservar" style="display:none;">
+                <label>Data da Reserva</label>
+                <input type="datetime-local" name="data_reserva" id="data_reserva_input">
+            </div>
+
+            <label>Prazo para Devolução</label>
+            <input type="datetime-local" name="prazo_devolucao" required id="prazo_input">
+
+            <button type="submit" class="btn-confirmar">Confirmar Registro</button>
+        </form>
+
+        <div class="voltar"><a href="{{ url_for('dashboard_funcionario') }}">Voltar ao Painel</a></div>
+    </div>
+
+    <script>
+        function getMinDate() {
+            const agora = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return `${agora.getFullYear()}-${pad(agora.getMonth()+1)}-${pad(agora.getDate())}T${pad(agora.getHours())}:${pad(agora.getMinutes())}`;
+        }
+
+        function atualizarHorario() {
+            const agora = new Date();
+            document.getElementById('horario-retirada').value = agora.toLocaleString('pt-BR');
+        }
+        atualizarHorario();
+
+        // Bloqueia datas passadas
+        const minDate = getMinDate();
+        document.getElementById('prazo_input').min = minDate;
+        document.getElementById('data_reserva_input').min = minDate;
+
+        function mostrar(modo) {
+            document.getElementById('tipo').value = modo;
+            document.getElementById('campo-retirar').style.display = modo === 'retirar' ? 'block' : 'none';
+            document.getElementById('campo-reservar').style.display = modo === 'reservar' ? 'block' : 'none';
+            document.getElementById('btn-retirar').className = modo === 'retirar' ? 'ativo' : '';
+            document.getElementById('btn-reservar').className = modo === 'reservar' ? 'ativo' : '';
+        }
+    </script>
+</body>
+</html>

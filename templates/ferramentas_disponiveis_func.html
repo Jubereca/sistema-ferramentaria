@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ferramentas Disponíveis - Mizu</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #fcfcfc; }
+
+        .header-top { background: white; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 100px; border-bottom: 2px solid #eee; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .mizu-logo img { height: 60px; }
+        .polimix-logo img { height: 30px; }
+        .search-container { flex-grow: 1; display: flex; justify-content: center; }
+        .search-box { display: flex; width: 500px; }
+        .search-box input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px 0 0 4px; outline: none; }
+        .search-box button { background: #ff6600; color: white; border: none; padding: 10px 25px; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; }
+
+        .sidebar { width: 250px; background-color: #333; color: white; position: fixed; top: 100px; bottom: 0; left: 0; }
+        .perfil-banner { color: #ff6600; padding: 20px; font-weight: bold; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #444; }
+        .nav-links { margin-top: 10px; }
+        .nav-links a { display: block; color: white; text-decoration: none; padding: 12px 20px; font-size: 14px; transition: 0.3s; }
+        .nav-links a:hover { background-color: #444; color: #ff6600; }
+        .nav-links a.ativo { background-color: #444; color: #ff6600; }
+
+        .main { margin-top: 120px; margin-left: 270px; padding: 30px; }
+
+        .card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .card-header { padding: 20px 25px; border-bottom: 1px solid #eee; }
+        .card-header h1 { font-size: 20px; color: #333; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #333; color: white; padding: 15px; text-align: left; font-size: 13px; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; color: #444; vertical-align: middle; }
+
+        .cod-cell { color: #0066cc; font-weight: 600; }
+        .status-badge { padding: 5px 14px; border-radius: 20px; font-weight: bold; font-size: 12px; background: #d4edda; color: #155724; }
+
+        .btn-retirar { background: #ff6600; color: white; border: none; padding: 9px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; text-align: center; line-height: 1.4; text-decoration: none; display: inline-block; }
+        .btn-retirar:hover { background: #e65c00; }
+    </style>
+</head>
+<body>
+
+<header class="header-top">
+    <div class="mizu-logo"><img src="{{ url_for('static', filename='img/mizu-1.png') }}" alt="Mizu"></div>
+    <form action="{{ url_for('ferramentas_disponiveis') }}" method="GET" class="search-container">
+        <div class="search-box">
+            <input type="text" name="busca" placeholder="Buscar ferramenta..." value="{{ request.args.get('busca', '') }}">
+            <button type="submit">Buscar</button>
+        </div>
+    </form>
+    <div class="polimix-logo"><img src="{{ url_for('static', filename='img/polimix-1.png') }}" alt="Polimix"></div>
+</header>
+
+<div class="sidebar">
+    <div class="perfil-banner">PERFIL: {{ session.get('perfil') }}</div>
+    <nav class="nav-links">
+        <a href="{{ url_for('ferramentas_disponiveis') }}" class="ativo">Ver Ferramentas Disponíveis</a>
+        <a href="{{ url_for('cadastrar_uso') }}">Cadastrar Uso</a>
+        <a href="{{ url_for('cadastrar_devolucao') }}">Cadastrar Devolução</a>
+        <a href="{{ url_for('ferramentas_indisponiveis') }}">Ferramentas Indisponíveis</a>
+        <a href="{{ url_for('logout') }}">Sair</a>
+    </nav>
+</div>
+
+<div class="main">
+    <div class="card">
+        <div class="card-header">
+            <h1>Ferramentas Disponíveis</h1>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:15%">Cód</th>
+                    <th style="width:50%">Ferramenta</th>
+                    <th style="width:15%">Status</th>
+                    <th style="width:20%">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in ferramentas %}
+                <tr>
+                    <td class="cod-cell">#{{ item.codigo }}</td>
+                    <td>{{ item.nome }}</td>
+                    <td><span class="status-badge">Disponível</span></td>
+                    <td>
+                        <a href="{{ url_for('cadastrar_uso') }}?codigo={{ item.codigo }}&nome={{ item.nome }}" class="btn-retirar">Retirar<br>Ferramenta</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Administrar Usuários - Mizu</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #f4f4f4; min-height: 100vh; }
+        .top-bar { height: 100px; background: white; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 4px solid #ff6600; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .top-bar img.logo-mizu { height: 60px; }
+        .top-bar img.logo-polimix { height: 35px; }
+        .sidebar { width: 280px; background: #2d2d2d; position: fixed; top: 104px; bottom: 0; border-right: 4px solid #ff6600; z-index: 900; display: flex; flex-direction: column; }
+        .perfil-header { background: #ff6600; color: white; padding: 18px 20px; font-weight: 900; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; display: block; }
+        .nav-links a { display: block; color: #ccc; text-decoration: none; padding: 15px 20px; border-bottom: 1px solid #3d3d3d; font-size: 13px; transition: 0.2s; }
+        .nav-links a:hover { background: #3d3d3d; color: #ff6600; padding-left: 28px; }
+        .nav-links a.ativo { color: #ff6600; font-weight: bold; }
+        .nav-links a.sair { color: #ff4444; border-top: 2px solid #444; font-weight: bold; }
+        .main { margin-top: 120px; margin-left: 280px; padding: 30px; }
+        .page-title { font-size: 22px; color: #333; font-weight: 700; margin-bottom: 20px; border-left: 4px solid #ff6600; padding-left: 12px; }
+        .busca-wrap { margin-bottom: 20px; }
+        .busca-wrap input { width: 380px; padding: 11px 16px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 14px; }
+        .busca-wrap input:focus { border-color: #ff6600; }
+        .table-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #333; color: white; padding: 14px 16px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        tbody td { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 13px; color: #444; vertical-align: middle; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: #fafafa; }
+        .status-ativo { color: #2e7d32; font-weight: bold; }
+        .status-inativo { color: #c62828; font-weight: bold; }
+        .acoes { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn-acao { border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 18px; }
+        .btn-editar { background: #fff3e0; }
+        .btn-permissoes { background: #e3f2fd; }
+        .btn-determinacao { background: #fdecea; }
+        .btn-linha { background: #e8f5e9; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-overlay.aberto { display: flex; }
+        .modal { background: white; border-radius: 10px; padding: 35px; width: 480px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .modal h2 { font-size: 18px; color: #333; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #ff6600; }
+        .form-group.checkbox { display: flex; align-items: center; gap: 10px; }
+        .form-group.checkbox input { width: auto; }
+        .form-group.checkbox label { font-size: 14px; color: #444; margin: 0; }
+        .modal-btns { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
+        .btn-cancelar { background: #888; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-salvar { background: #ff6600; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-salvar:hover { background: #e65c00; }
+        .timeline-item { border-left: 3px solid #ff6600; padding: 8px 14px; margin-bottom: 10px; }
+        .timeline-item .data { font-weight: bold; color: #ff6600; font-size: 13px; }
+        .timeline-item .desc { color: #555; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<header class="top-bar">
+    <img src="{{ url_for('static', filename='img/mizu-1.png') }}" class="logo-mizu" alt="Mizu">
+    <img src="{{ url_for('static', filename='img/polimix-1.png') }}" class="logo-polimix" alt="Polimix">
+</header>
+
+<div class="sidebar">
+    <a href="{{ url_for('perfil_adm') }}" class="perfil-header">PERFIL: {{ session.get('perfil', '') }}</a>
+    <nav class="nav-links">
+        <a href="{{ url_for('ver_ferramentas') }}">Inventário Geral (Início)</a>
+        <a href="{{ url_for('ferramentas_disponiveis') }}">Ver Ferramentas Disponíveis</a>
+        <a href="{{ url_for('manutencao') }}">Gestão de Manutenção</a>
+        {% if session.get('perfil') == 'ADMINISTRADOR' %}
+            <a href="{{ url_for('cadastrar') }}">Cadastrar Ferramentas</a>
+            <a href="{{ url_for('ferramentas_em_uso') }}">Ver Ferramentas em Uso</a>
+            <a href="{{ url_for('solicitar_acesso') }}">Solicitar Acesso (Novo Usuário)</a>
+            <a href="{{ url_for('usuarios') }}" class="ativo">Administrar Usuários</a>
+            <a href="{{ url_for('relatorio') }}">Relatório de Movimentações</a>
+            <a href="{{ url_for('enviar_formulario') }}">Enviar formulário</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}" class="sair">Sair</a>
+    </nav>
+</div>
+
+<div class="main">
+    <h1 class="page-title">Gestão de Usuários e Atos</h1>
+    <div class="busca-wrap">
+        <input type="text" id="campoBusca" placeholder="🔍  Buscar por nome, e-mail ou matrícula..." onkeyup="filtrarTabela()">
+    </div>
+    <div class="table-wrapper">
+        <table id="tabelaUsuarios">
+            <thead>
+                <tr>
+                    <th>Nome</th><th>E-mail</th><th>Setor/Unidade</th><th>Nº Matrícula</th><th>Status</th><th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in usuarios %}
+                <tr>
+                    <td>{{ u.nome }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.setor_cargo or '—' }}</td>
+                    <td>{{ u.matricula or '—' }}</td>
+                    <td>
+                        {% if u.ativo == 1 or u.status == 'Ativo' or u.status == 'Aprovado' %}
+                            <span class="status-ativo">Ativo</span>
+                        {% else %}
+                            <span class="status-inativo">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="acoes">
+                            <!-- 1. Editar Perfil -->
+                            <button class="btn-acao btn-editar" title="Editar Perfil"
+                                onclick="abrirEditar({{ u.id }}, '{{ u.nome }}', '{{ u.email }}', '{{ u.setor_cargo or '' }}', '{{ u.matricula or '' }}')">✏️</button>
+                            <!-- 2. Permissões de Acesso -->
+                            <button class="btn-acao btn-permissoes" title="Permissões de Acesso"
+                                onclick="abrirPermissoes({{ u.id }})">🔒</button>
+                            <!-- 3. Nova Determinação -->
+                            <button class="btn-acao btn-determinacao" title="Nova Determinação"
+                                onclick="abrirDeterminacao({{ u.id }}, '{{ u.email }}')">📋</button>
+                            <!-- 4. Linha do Tempo -->
+                            <button class="btn-acao btn-linha" title="Linha do Tempo"
+                                onclick="abrirLinha({{ u.id }})">⏱️</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL 1: EDITAR PERFIL -->
+<div class="modal-overlay" id="modalEditar">
+    <div class="modal">
+        <h2>Editar Perfil do Funcionário</h2>
+        <form action="{{ url_for('editar_usuario') }}" method="POST">
+            <input type="hidden" name="id" id="editId">
+            <div class="form-group"><label>Número de Matrícula</label><input type="text" name="matricula" id="editMatricula" placeholder="Digite a matrícula"></div>
+            <div class="form-group"><label>Nome Completo</label><input type="text" name="nome" id="editNome"></div>
+            <div class="form-group"><label>E-mail Corporativo</label><input type="email" name="email" id="editEmail"></div>
+            <div class="form-group">
+                <label>Setor/Unidade</label>
+                <select name="setor">
+                    <option>Obras Norte</option><option>Obras Sul</option><option>Manutenção</option>
+                    <option>Almoxarifado</option><option>Administrativo</option><option>Formare</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Nova Senha <small>(deixe em branco para manter)</small></label><input type="password" name="nova_senha" placeholder="Deixe em branco para manter a atual"></div>
+            <div class="form-group"><label>Confirmar Nova Senha</label><input type="password" name="confirmar_senha" placeholder="Repita a nova senha"></div>
+            <div class="modal-btns">
+                <button type="button" class="btn-cancelar" onclick="fecharModal('modalEditar')">Cancelar</button>
+                <button type="submit" class="btn-salvar">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 2: PERMISSÕES DE ACESSO -->
+<div class="modal-overlay" id="modalPermissoes">
+    <div class="modal">
+        <h2>Permissões de Acesso</h2>
+        <form action="{{ url_for('salvar_permissoes') }}" method="POST">
+            <input type="hidden" name="usuario_id" id="permUsuarioId">
+            <div class="form-group checkbox">
+                <input type="checkbox" name="ver_ferramentas" id="permVer" checked>
+                <label for="permVer">Ver Ferramentas</label>
+            </div>
+            <div class="form-group checkbox">
+                <input type="checkbox" name="cadastrar_ferramentas" id="permCadastrar">
+                <label for="permCadastrar">Cadastrar Ferramentas</label>
+            </div>
+            <div class="modal-btns">
+                <button type="submit" class="btn-salvar">Salvar</button>
+                <button type="button" class="btn-cancelar" onclick="fecharModal('modalPermissoes')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 3: NOVA DETERMINAÇÃO -->
+<div class="modal-overlay" id="modalDeterminacao">
+    <div class="modal">
+        <h2>Nova Determinação</h2>
+        <form action="{{ url_for('nova_determinacao') }}" method="POST">
+            <input type="hidden" name="usuario_id" id="detUsuarioId">
+            <div class="form-group"><textarea name="descricao" rows="4" placeholder="Descrição do serviço..."></textarea></div>
+            <div class="form-group"><input type="email" name="email_destino" id="detEmail" placeholder="E-mail de destino"></div>
+            <div class="modal-btns">
+                <button type="button" class="btn-cancelar" onclick="fecharModal('modalDeterminacao')">Cancelar</button>
+                <button type="submit" class="btn-salvar">Enviar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 4: LINHA DO TEMPO -->
+<div class="modal-overlay" id="modalLinha">
+    <div class="modal">
+        <h2>Linha do Tempo</h2>
+        <div id="conteudoLinha"></div>
+        <div class="modal-btns">
+            <button type="button" class="btn-salvar" onclick="fecharModal('modalLinha')">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function filtrarTabela() {
+    const busca = document.getElementById('campoBusca').value.toLowerCase();
+    document.querySelectorAll('#tabelaUsuarios tbody tr').forEach(tr => {
+        tr.style.display = tr.innerText.toLowerCase().includes(busca) ? '' : 'none';
+    });
+}
+function abrirEditar(id, nome, email, setor, matricula) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editNome').value = nome;
+    document.getElementById('editEmail').value = email;
+    document.getElementById('editMatricula').value = matricula;
+    document.getElementById('modalEditar').classList.add('aberto');
+}
+function abrirPermissoes(id) {
+    document.getElementById('permUsuarioId').value = id;
+    document.getElementById('modalPermissoes').classList.add('aberto');
+}
+function abrirDeterminacao(id, email) {
+    document.getElementById('detUsuarioId').value = id;
+    document.getElementById('detEmail').value = email;
+    document.getElementById('modalDeterminacao').classList.add('aberto');
+}
+function abrirLinha(id) {
+    fetch('/linha_tempo/' + id)
+        .then(r => r.json())
+        .then(data => {
+            let html = '';
+            if (data.length === 0) {
+                html = '<p style="color:#888;text-align:center;">Nenhuma atividade registrada.</p>';
+            } else {
+                data.forEach(item => {
+                    html += `<div class="timeline-item"><div class="data">${item.data}</div><div class="desc">${item.descricao}</div></div>`;
+                });
+            }
+            document.getElementById('conteudoLinha').innerHTML = html;
+            document.getElementById('modalLinha').classList.add('aberto');
+        });
+}
+function fecharModal(id) {
+    document.getElementById(id).classList.remove('aberto');
+}
+window.onclick = function(e) {
+    ['modalEditar','modalPermissoes','modalDeterminacao','modalLinha'].forEach(id => {
+        const m = document.getElementById(id);
+        if (e.target === m) m.classList.remove('aberto');
+    });
+}
+</script>
+
+</body>
+</html>
